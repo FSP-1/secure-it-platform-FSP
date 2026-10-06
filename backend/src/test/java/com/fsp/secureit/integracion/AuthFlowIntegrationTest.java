@@ -1,6 +1,5 @@
 package com.fsp.secureit.integracion;
 
-import com.fsp.secureit.entity.User;
 import org.flywaydb.core.Flyway;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -9,9 +8,9 @@ import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpSession;
-import org.springframework.security.core.context.SecurityContext;
 import org.springframework.test.web.servlet.MockMvc;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -58,6 +57,22 @@ class AuthFlowIntegrationTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.username").value("integrationuser"))
                 .andExpect(jsonPath("$.role").value("ROLE_USER"));
+    }
+
+    @Test
+    void logoutInvalidatesSessionAndProtectsEndpoints() throws Exception {
+        MockHttpSession session = loginAs(
+                "logoutuser",
+                "logoutuser@example.com",
+                "TestPassword123!");
+
+        mockMvc.perform(post("/api/auth/logout").session(session))
+                .andExpect(status().is3xxRedirection());
+
+        assertTrue(session.isInvalid());
+
+        mockMvc.perform(get("/api/auth/me").session(session))
+                .andExpect(status().isForbidden());
     }
 
     @Test

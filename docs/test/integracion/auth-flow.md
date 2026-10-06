@@ -5,6 +5,7 @@ Clase: [AuthFlowIntegrationTest.java](../../../backend/src/test/java/com/fsp/sec
 ## Cobertura
 
 - Registro y login con BCrypt y persistencia real.
+- Logout que invalida la sesion HTTP y bloquea posteriores accesos protegidos.
 - Rechazo de usernames duplicados.
 - Rechazo de payloads de registro invalidos.
 - Bloqueo de `/api/auth/me` sin autenticacion.
