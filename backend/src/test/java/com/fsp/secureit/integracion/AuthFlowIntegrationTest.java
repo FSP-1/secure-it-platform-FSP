@@ -11,6 +11,7 @@ import org.springframework.mock.web.MockHttpSession;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -35,6 +36,7 @@ class AuthFlowIntegrationTest {
     @Test
     void userCanRegisterAndLoginWithBcryptPassword() throws Exception {
         mockMvc.perform(post("/api/auth/register")
+                .with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("""
                         {
@@ -47,6 +49,7 @@ class AuthFlowIntegrationTest {
                 .andExpect(jsonPath("$.role").value("USER"));
 
         mockMvc.perform(post("/api/auth/login")
+                .with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("""
                         {
@@ -66,7 +69,9 @@ class AuthFlowIntegrationTest {
                 "logoutuser@example.com",
                 "TestPassword123!");
 
-        mockMvc.perform(post("/api/auth/logout").session(session))
+        mockMvc.perform(post("/api/auth/logout")
+                .with(csrf())
+                .session(session))
                 .andExpect(status().is3xxRedirection());
 
         assertTrue(session.isInvalid());
@@ -86,11 +91,13 @@ class AuthFlowIntegrationTest {
                 """;
 
         mockMvc.perform(post("/api/auth/register")
+                .with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(request))
                 .andExpect(status().isCreated());
 
         mockMvc.perform(post("/api/auth/register")
+                .with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(request.replace("first@example.com", "second@example.com")))
                 .andExpect(status().isConflict())
@@ -100,6 +107,7 @@ class AuthFlowIntegrationTest {
     @Test
     void invalidRegistrationIsRejected() throws Exception {
         mockMvc.perform(post("/api/auth/register")
+                .with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("""
                         {
@@ -143,6 +151,7 @@ class AuthFlowIntegrationTest {
 
     private MockHttpSession loginAs(String username, String email, String password) throws Exception {
         mockMvc.perform(post("/api/auth/register")
+                .with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("""
                         {
@@ -157,6 +166,7 @@ class AuthFlowIntegrationTest {
 
     private MockHttpSession login(String username, String password) throws Exception {
         return (MockHttpSession) mockMvc.perform(post("/api/auth/login")
+                .with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("""
                         {

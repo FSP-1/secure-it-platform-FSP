@@ -11,6 +11,9 @@ Clase: [AuthFlowIntegrationTest.java](../../../backend/src/test/java/com/fsp/sec
 - Bloqueo de `/api/auth/me` sin autenticacion.
 - Bloqueo de `/api/admin/dashboard` para usuarios normales.
 - Acceso de ADMIN a `/api/admin/dashboard` mediante sesion HTTP.
+- Tokens CSRF en todos los `POST` de registro, login y logout.
+
+Los `GET` de lectura no anaden un token CSRF porque esta proteccion se aplica a las operaciones que modifican estado.
 
 ## Requisitos
 
